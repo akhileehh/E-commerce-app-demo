@@ -1,0 +1,44 @@
+HOW TO BUILD JAVA BASED MICRO SERVICE 'AD' LOCALLY
+--------------------------------------------------
+> https://github.com/akhileehh/E-commerce-app-demo/tree/main/src/ad
+> instruction to build locally will be published by developer src/ad/README.md
+> mainly java is build using maven or gradle ,here (gradle),Check README.md for more info
+> gradlew file take care of downloading dependencies,comiling,building also
+> gradle-wrapper.properties file  to edit or update setting related to distribution eg: network timeout 
+
+> install java on machine $ sudo apt install openjdk-21-jre-headless
+> cd /src/ad
+> chmod +x ./gradlew
+
+> ./gradlew installDist
+> ls -ltr ./build/install/opentelemetry-demo-ad/bin/Ad
+> export AD_PORT=8080
+> export FEATURE_FLAG_GRPC_SERVICE_ADDR=featureflagservice:50053
+> ./build/install/opentelemetry-demo-ad/bin/Ad    // here the executable and jar file are kept
+
+
+TO CREATE MULTI STAGE DOCKERFILE
+-----------------------------------------------------
+> cd /src/ad/
+
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /usr/src/app/
+COPY gradlew* settings.gradle* build.gradle .
+COPY ./gradle ./gradle
+RUN chmod +x ./gradlew
+RUN ./gradlew
+RUN ./gradlew downloadRepos
+COPY ..                                            // copy everything in /src/ad 
+COPY ./pb ./proto                                  // copied demo.proto file in as proto
+RUN chmos +x ./gradlew
+RUN ./gradlew installDist -PprotoSourceDir=./proto   // from readme
+
+FROM eclipse-temurin:21-jre                         // lightweight image with java runtime
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app ./
+ENV AD_PORT 9099
+ENTRYPOINT ["./build/install/opentelemetry-demo-ad/bin/Ad"]
+
+> to check docker file 
+> docker build -t <dockerhub user name>/<repo name>:v1
+> docker run <dockerhub user name>/<repo name>:v1 
