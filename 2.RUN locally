@@ -1,0 +1,8 @@
+BASH
+------------------------------------------------------------------------------
+> git clone https://github.com/iam-veeramalla/ultimate-devops-project-demo.git
+> cd ultimate-devops-project-demo/
+> ls -ltr
+> vim docker-compose.yml
+> docker compose up > if all docker containers are up access it on web
+> update sg of ec2  alltarffic from anywhere ipv4 or 8080 from myip
